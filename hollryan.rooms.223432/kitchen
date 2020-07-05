@@ -1,0 +1,6 @@
+ROOM NAME: kitchen
+CONNECTION 0: baths
+CONNECTION 1: dungeon
+CONNECTION 2: hallway
+CONNECTION 6: baths
+ROOM TYPE: START_ROOM
