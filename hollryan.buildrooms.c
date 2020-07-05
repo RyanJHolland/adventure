@@ -231,7 +231,6 @@ void addRandomConnection()
 
 void connectRooms()
 {
-    int counter = 0;
     //printf("connectRooms() called\n");
     while (!isGraphFull())
     {
@@ -258,7 +257,7 @@ void connectRooms()
 
 int main(int argc, char **argv)
 {
-    printf("\n---------- RUNNING ----------\n");
+    //printf("\n---------- RUNNING ----------\n");
     /////////////////////////////////
 
     // Generate a random seed.
@@ -277,16 +276,18 @@ int main(int argc, char **argv)
     int i;
     for (i = 0; i < 7; i++)
     {
+        /*
         //printf("i = %d\nnum=%d\nname=%s\nconnections: \n", i, rooms[i].num, rooms[i].name);
         int j;
         for (j = 0; j < 6; j++)
         {
             //printf("%d: %d (%s)\n", j, rooms[i].connections[j], rooms[rooms[i].connections[j]].name);
         }
+        */
         makeRoomFile(rooms[i]);
     }
 
     ////////////////////////////
-    printf("---------- ENDING  ----------\n\n");
+    //printf("---------- ENDING  ----------\n\n");
     return 0;
 }

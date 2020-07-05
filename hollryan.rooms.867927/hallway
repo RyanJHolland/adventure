@@ -1,0 +1,6 @@
+ROOM NAME: hallway
+CONNECTION 0: bedroom
+CONNECTION 1: tower
+CONNECTION 2: garden
+CONNECTION 3: baths
+ROOM TYPE: MID_ROOM

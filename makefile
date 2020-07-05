@@ -10,5 +10,5 @@ clean:
 	rm -rf hollryan.rooms*
 
 re: 
-	make clean
-	make
+	make rooms
+	make adv

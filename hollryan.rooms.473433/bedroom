@@ -1,0 +1,8 @@
+ROOM NAME: bedroom
+CONNECTION 0: garden
+CONNECTION 1: dungeon
+CONNECTION 2: armory
+CONNECTION 3: hallway
+CONNECTION 4: library
+CONNECTION 5: kitchen
+ROOM TYPE: MID_ROOM

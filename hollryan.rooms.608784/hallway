@@ -1,0 +1,6 @@
+ROOM NAME: hallway
+CONNECTION 0: kitchen
+CONNECTION 1: tower
+CONNECTION 2: temple
+CONNECTION 3: bedroom
+ROOM TYPE: START_ROOM

@@ -1,0 +1,8 @@
+ROOM NAME: hallway
+CONNECTION 0: bedroom
+CONNECTION 1: tower
+CONNECTION 2: library
+CONNECTION 3: baths
+CONNECTION 4: temple
+CONNECTION 5: armory
+ROOM TYPE: END_ROOM

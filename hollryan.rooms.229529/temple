@@ -1,0 +1,5 @@
+ROOM NAME: temple
+CONNECTION 0: tower
+CONNECTION 1: library
+CONNECTION 2: hallway
+ROOM TYPE: MID_ROOM

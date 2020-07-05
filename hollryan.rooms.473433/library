@@ -1,0 +1,7 @@
+ROOM NAME: library
+CONNECTION 0: kitchen
+CONNECTION 1: armory
+CONNECTION 2: bedroom
+CONNECTION 3: hallway
+CONNECTION 4: garden
+ROOM TYPE: MID_ROOM

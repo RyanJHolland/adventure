@@ -1,0 +1,6 @@
+ROOM NAME: bedroom
+CONNECTION 0: dungeon
+CONNECTION 1: garden
+CONNECTION 2: library
+CONNECTION 3: baths
+ROOM TYPE: START_ROOM
