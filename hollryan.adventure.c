@@ -7,22 +7,16 @@
 #include <sys/stat.h>
 #include <time.h>
 #include <unistd.h>
+#include <stdbool.h>
 
 // Adapted from code provided in the module notes: https://repl.it/@cs344/34completeexamplec#main.c
-
-/*This programs
-* Opens the current directory
-* Finds the latest directory inside the current directory that has the prefix "hollryan.rooms."
-* Goes to this latest directory and proceses the file named "room_info.txt" 
-* Creates a linked list with entries for each row of data found in "room_info.txt"
-* When done processing the file, print all the room data stored in the linked list
-*/
 
 struct Room
 {
     int num;
-    char *name;
-    int connections[6];
+    char *name[10];
+    char *connections[6][10];
+    int type; // start = 0, mid = 1, end = 2
 };
 
 struct Room rooms[7];
@@ -76,175 +70,249 @@ char *getFilePath(char *directoryName, char *fileName)
     return filePath;
 }
 
-/* Parse the current line and create a Room with the data */
-struct Room *createRoom(char *currLine)
+// This figures out what kind of line we're looking at: Room Name, Room Type, or Connections.
+// Then it populates the Room struct for this room with that data.
+int parseLine(char *lineBuffer, struct Room *room)
 {
-    struct Room *currRoom = malloc(sizeof(struct Room));
-
-    // The first line is the room name
-    char *line = strtok(currLine, " ");
-    currRoom->name = calloc(strlen(line) + 1, sizeof(char));
-    strcpy(currRoom->name, line);
-    /*
-    // The second line is the connection 0
-    line = strtok(NULL, " ");
-    currRoom->lastName = calloc(strlen(line) + 1, sizeof(char));
-    strcpy(currRoom->lastName, line);
-
-    // The third line is the firstName
-    line = strtok(NULL, " ");
-    currRoom->firstName = calloc(strlen(line) + 1, sizeof(char));
-    strcpy(currRoom->firstName, line);
-
-    // The last line is the major
-    line = strtok(NULL, "\n");
-    currRoom->major = calloc(strlen(line) + 1, sizeof(char));
-    strcpy(currRoom->major, line);
-    // Set the next node to NULL in the newly created Room entry
-    currRoom->next = NULL;
-    */
-
-    return currRoom;
-}
-
-int parseLine(char *buf, struct Room *room)
-{
-    int i = 0;
-    int j = 0;
-    char text[10];
-    // initialize the text array with nulls
-    while (i < 10)
+    // iterate thru chunks of the line
+    char *token;
+    token = strtok(lineBuffer, " "); // get first chunk
+    if (!strcmp(token, "ROOM"))      // meaning this chunk says "ROOM"
     {
-        text[i] = '\0';
-        i++;
-    }
-    i = 0;
-
-    // parse the line by copying everything after the ": " to the text array
-    while (i < 60)
-    {
-        if (buf[i] == '\0')
+        //printf("token is %s and matched ROOM\n", token);
+        token = strtok(NULL, " "); // get next chunk
+        //printf("token is now %s\n", token);
+        if (!strcmp(token, "NAME:"))
         {
-            //return 0;
+            //printf("token is %s and matched NAME:\n", token);
+            token = strtok(NULL, " ");
+            //printf("token is now %s\n", token);
+            token[strlen(token) - 1] = '\0'; // we need to remove the "\n" at the end of the name
+            //printf("token is now %s\n", token);
+            //room->name = token;
+            memcpy(room->name, token, 8);
+            //printf("X Name: %s\n", room->name);
         }
-        else if (buf[i] == ':')
+        else // must be room TYPE, not room NAME
         {
-            i = i + 2; // skip the ": " (colon and space)
-            while (i < 60)
+            //printf("token is %s and matched ELSE:\n", token);
+            token = strtok(NULL, " ");
+            //printf("token is now %s\n", token);
+            if (!strcmp(token, "START_ROOM"))
             {
-                if (buf[i] == '\0')
-                {
-                    break;
-                }
-                else
-                {
-                    text[j] = buf[i];
-                    i++;
-                    j++;
-                }
+                room->type = 0;
             }
+            else if (!strcmp(token, "MID_ROOM"))
+            {
+                room->type = 1;
+            }
+            else if (!strcmp(token, "END_ROOM"))
+            {
+                room->type = 2;
+            }
+            //printf("Type: %d\n", room->type);
         }
-        i++;
     }
-    room->name = text;
+    else // we are looking at a connection
+    {
+        //printf("token reached CONNECTION and is %s\n", token);
+        token = strtok(NULL, " "); // step from CONNECTION to the # of the connection
+        //printf("step to connection number. token is now %s\n", token);
+        int connectionNum = atoi(&token[0]); // ascii char to int (leaving out the colon)
+        //printf("connectionNum = %d\n", connectionNum);
+        token = strtok(NULL, " "); // step to the name of the connected room
+        //printf("step to name of connected room. token is now %s\n", token);
+        token[strlen(token) - 1] = '\0'; // remove its trailing newline
+        memcpy(room->connections[connectionNum], token, 8);
+        //printf("Connection #%d: %s\n", connectionNum, room->connections[connectionNum]);
+    }
+
     return 0;
 }
 
-int readFile(char *filePath)
+int readFile(char *filePath, struct Room *room)
 {
-    // create a room to store the file
-    struct Room *room;
-    // Open the specified file for reading only
+    // Open the file
     FILE *roomFile = fopen(filePath, "r");
-    char buf[60];
+    char lineBuffer[60];
     // read each line to buffer
-    while (fgets(buf, 60, roomFile) != NULL)
+    while (fgets(lineBuffer, 60, roomFile) != NULL)
     {
         // parse the line and save its data into the room struct
-        parseLine(buf, room);
+        parseLine(lineBuffer, room);
     };
     fclose(roomFile);
 
     return (0);
-    /*
-
-    char *currLine = NULL;
-    size_t len = 0;
-    ssize_t nread;
-    char *line;
-
-    // Read all the lines in the file
-    while ((nread = getline(&currLine, &len, roomFile)) != -1)
-    {
-        // Get the room element corresponding to the current line
-        struct Room *newElem = createRoom(currLine);
-
-        // Is this the first element in the linked list?
-        if (head == NULL)
-        {
-            // This is the first element in the linked link
-            // Set the head and the tail to this element
-            head = newElem;
-            tail = newElem;
-        }
-        else
-        {
-            // This is not the first element.
-            // Add this element to the list and advance the tail
-            tail->next = newElem;
-            tail = newElem;
-        }
-    }
-    free(currLine);
-    return head;
-    */
 }
 
-/*
-* Print the linked list of Rooms
-void printRoomList(struct Room *list)
+// print info on rooms
+void printRooms()
 {
-    while (list != NULL)
+    // print the now-populated Room structs
+    int i;
+    for (i = 0; i < 7; i++)
     {
-        printf("%s %s %s %s\n", list->onid, list->lastName,
-               list->firstName, list->major);
-        list = list->next;
+        printf("num: %d\n", rooms[i].num);
+        printf("name: %s\n", rooms[i].name);
+        printf("type: %d\n", rooms[i].type);
+        int j = 0;
+        while (j < 6)
+        {
+            if (strlen(rooms[i].connections[j]) > 0)
+            {
+                printf("connection %d: %s\n", j, rooms[i].connections[j]);
+            }
+            j++;
+        }
+        printf("\n");
     }
 }
-*/
+
+void printConnections(int currentRoom)
+{
+    printf("POSSIBLE CONNECTIONS: ");
+    int j = 0;
+    printf("%s", rooms[currentRoom].connections[j]);
+    while (j < 6)
+    {
+        j++;
+        if (strlen(rooms[currentRoom].connections[j]) > 1)
+        {
+            printf(", %s", rooms[currentRoom].connections[j]);
+        }
+    }
+    printf(".\n");
+}
 
 int main(void)
 {
-    printf("\n");
+    //printf("\n------- starting ----------\n");
+    // Find the most recent rooms folder
     struct dirent *file; // directory iterator cursor thingy
     char *latestDir = findLatestDirectory(".", "hollryan.rooms.");
     DIR *d = opendir(latestDir);
     file = readdir(d); // calling this twice skips over the . and .. files, which we want to ignore.
     file = readdir(d);
+
+    int roomsCounter = 0;
+
     while ((file = readdir(d)) != NULL)
     {
         char *filePath = getFilePath(latestDir, file->d_name);
-        readFile(filePath);
+        //printf("filePath = %s, roomsCounter = %d\n", filePath, roomsCounter);
+        readFile(filePath, &rooms[roomsCounter]);
+        rooms[roomsCounter].num = roomsCounter;
+        //printf("Name: %s, Type: %d\n", rooms[roomsCounter].name, rooms[roomsCounter].type);
+        roomsCounter++;
     }
 
-    //printRoomList(list);
-    printf("\n");
+    //printRooms();
+
+    // get the starting room
+    int i, currentRoom;
+    for (i = 0; i < 7; i++)
+    {
+        if (rooms[i].type == 0)
+        {
+            currentRoom = rooms[i].num;
+        }
+    }
+
+    // play the game
+    int steps = 0;
+    bool match = false;
+    int path[256];
+    int x;
+    for (x = 0; x < 256; x++)
+    {
+        path[x] = -1;
+    }
+
+    while (true)
+    {
+        printf("\nCURRENT LOCATION: %s\n", rooms[currentRoom].name);
+
+        // check loss condition
+        if (steps == 256)
+        {
+            printf("You took too long, and got busted by the guards!\n");
+            return 0;
+        }
+
+        // check victory condition
+        if (rooms[currentRoom].type == 2)
+        {
+            printf("YOU HAVE FOUND THE END ROOM. CONGRATULATIONS!\n");
+            printf("YOU TOOK %d STEPS. YOUR PATH TO VICTORY WAS:\n", steps);
+            int i = 0;
+            while (path[i] > -1)
+            {
+                printf("%s\n", rooms[path[i]].name);
+                i++;
+                /*
+                if (path[i] > -1)
+                {
+                    printf(", ");
+                }
+                else
+                {
+                    printf(". ");
+                }
+                */
+            }
+            printf("\n\n");
+            return 0;
+        }
+
+        // No victory or loss. Continue the game:
+        printConnections(currentRoom);
+        printf("WHERE TO? >");
+        char input[10];
+        fgets(input, sizeof(input), stdin);
+        // input has a trailing '\n' which we must remove
+        input[strlen(input) - 1] = '\0';
+
+        //printf("You chose: %s\n", input);
+        //printf("rooms[i].connections[0] = %s\n", rooms[currentRoom].connections[0]);
+
+        // check if input matches possible move locations
+        int i = 0;
+        while (i < 6) // for each possible connection
+        {
+            if (strlen(rooms[currentRoom].connections[i]) > 0) // for each actual connection
+            {
+                int same = strcmp(rooms[currentRoom].connections[i], input); // check if input matches it
+                if (same == 0)
+                {
+                    //printf("currentRoom = %d, rooms[currentRoom].num = %d, path[steps] = %d, steps = %d\n", currentRoom, rooms[currentRoom].num, path[steps], steps);
+                    match = true; // match found
+                    // move to that room
+                    int j;
+                    for (j = 0; j < 7; j++)
+                    {
+                        if (strcmp(rooms[j].name, input) == 0)
+                        {
+                            currentRoom = rooms[j].num;
+                        }
+                    }
+                    path[steps] = currentRoom; // log our path
+                    steps++;                   // increment counter of moves made
+                    //printf("currentRoom = %d, rooms[currentRoom].num = %d, path[steps] = %d, steps = %d\n", currentRoom, rooms[currentRoom].num, path[steps], steps);
+                    break;
+                }
+                //printf(", %s", rooms[currentRoom].connections[i]);
+            }
+            i++;
+        }
+
+        // bad input
+        if (match == false)
+        {
+
+            printf("\nHUH? I DON’T UNDERSTAND THAT ROOM. TRY AGAIN.\n");
+        }
+    }
+    //printf("\n------- ending ------------\n");
     return 0;
 }
-/*
-
-int main(int argc, char **argv)
-{
-
-    struct stat stats;
-    stat("hollryan.Rooms.188397/", &stats);
-
-    // source for the stat-accessing below: https://codeforwin.org/2018/03/c-program-find-file-properties-using-stat-function.html
-    struct tm dt;
-    dt = *(gmtime(&stats.st_mtime));
-    printf("\nModified on: %d-%d-%d %d:%d:%d\n", dt.tm_mday, dt.tm_mon, dt.tm_year + 1900,
-           dt.tm_hour, dt.tm_min, dt.tm_sec);
-    return 0;
-}
-
-*/

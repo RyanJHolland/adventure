@@ -12,6 +12,7 @@ struct Room
     int num;
     char *name;
     int connections[6];
+    int type; // start = 0, mid = 1, end = 2
 };
 
 struct Room rooms[7];
@@ -77,14 +78,17 @@ FILE *makeRoomFile(struct Room room)
     // write room type to the file
     if (room.num == 1)
     {
+        room.type = 0;
         fputs("ROOM TYPE: START_ROOM", fp);
     }
     else if (room.num == 6)
     {
+        room.type = 2;
         fputs("ROOM TYPE: END_ROOM", fp);
     }
     else
     {
+        room.type = 1;
         fputs("ROOM TYPE: MID_ROOM", fp);
     }
     // end
