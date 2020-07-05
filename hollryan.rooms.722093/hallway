@@ -1,0 +1,7 @@
+ROOM NAME: hallway
+CONNECTION 0: tower
+CONNECTION 1: temple
+CONNECTION 2: armory
+CONNECTION 3: dungeon
+CONNECTION 4: kitchen
+ROOM TYPE: MID_ROOM

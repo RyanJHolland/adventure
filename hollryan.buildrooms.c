@@ -67,7 +67,7 @@ FILE *makeRoomFile(struct Room room)
     fputs("\n", fp);
     // write room connections to the file
     int i;
-    for (i = 0; i < 7; i++)
+    for (i = 0; i < 6; i++)
     {
         if (room.connections[i] != -1)
         {
@@ -147,7 +147,7 @@ bool canAddConnectionFrom(struct Room x)
 
     //printf("canAddConnectionFrom() called with x=%d\n", x.num);
     //printf("x.connections[5] == %d\n", x.connections[5]);
-    if (x.connections[5] == -1)
+    if (rooms[x.num].connections[5] == -1)
     {
         //printf("canAddConnectionFrom() returning TRUE\n");
         return true;
@@ -162,7 +162,7 @@ bool connectionAlreadyExists(struct Room x, struct Room y)
     int i;
     for (i = 0; i < 6; i++) // iterating thru room x's connections
     {
-        if (x.connections[i] == y.num)
+        if (rooms[x.num].connections[i] == y.num)
         {
             //printf("connectionAlreadyExists() returning TRUE\n");
             return true;
@@ -193,7 +193,7 @@ void connectRoom(struct Room x, struct Room y)
 bool isSameRoom(struct Room x, struct Room y)
 {
     //printf("isSameRoom() called with x=%d, y=%d\n", x.num, y.num);
-    if (x.num == y.num)
+    if (rooms[x.num].num == rooms[y.num].num)
     {
         //printf("isSameRoom() returning TRUE since x.num=%d and y.num=%d\n", x.num, y.num);
         return true;
@@ -237,6 +237,7 @@ void connectRooms()
     {
         /*
         // prints all the rooms
+        printf("\n-------------------------------\n");
         int i;
         for (i = 0; i < 7; i++) // iterate thru rooms
         {
@@ -248,7 +249,6 @@ void connectRooms()
             }
         }
         */
-
         //printf("isGraphFull() is false\n");
         addRandomConnection();
     }
